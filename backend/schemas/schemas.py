@@ -16,10 +16,10 @@ class TaskCreateSchema(BaseModel):
     user_telegram_id: int
     
 class TaskUpdateSchema(BaseModel):
-    id: int
-    field: str
-    new_value: str
-    user_telegram_id: int
+    task: Optional[str] = None
+    describe: Optional[str] = None
+    ex_date: Optional[str] = None
+    user_telegram_id: Optional[int] = None
 
 class TaskDeleteSchema(BaseModel):
     id: int

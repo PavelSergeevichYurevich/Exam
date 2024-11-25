@@ -57,7 +57,7 @@ async def change_user(request:Request, user_id:int, user_upd: UserChangeSchema, 
 
 # удалить пользователя
 @user_router.delete(path='/delete/')
-async def del_customer(request:Request, id:int, db: Session = Depends(get_db)):
+async def del_user(request:Request, id:int, db: Session = Depends(get_db)):
     stmnt = delete(User).where(User.id == id)
     user = db.execute(stmnt)
     db.commit()
