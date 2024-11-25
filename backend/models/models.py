@@ -7,6 +7,7 @@ class User(Base):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     telegram_id: Mapped[int] = mapped_column(unique=True)
+    username: Mapped[str]
     hashed_password: Mapped[str]
     tasks: Mapped[List["Task"]] = relationship(back_populates='user', cascade='save-update, merge, delete')
         

@@ -29,6 +29,7 @@ async def add_user(request:Request, user: UserCreateSchema, password: str, db: S
     hashed_password = hashing_pass(password)
     new_user = User(
         telegram_id = user.telegram_id,
+        username = user.username,
         hashed_password = hashed_password,
     )
     db.add(new_user)
@@ -43,6 +44,12 @@ async def change_user(request:Request, user_id:int, user_upd: UserChangeSchema, 
     if user_upd.telegram_id:
         stmnt = update(User).where(User.id == user_id).values(
             telegram_id = user_upd.telegram_id
+        )
+        user = db.execute(stmnt)
+        db.commit()
+    if user_upd.username:
+        stmnt = update(User).where(User.id == user_id).values(
+            username = user_upd.username
         )
         user = db.execute(stmnt)
         db.commit()

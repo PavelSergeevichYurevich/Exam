@@ -24,11 +24,11 @@ SECRET_KEY = "60dad50dcf49cdb04ff89b51a6c5b3abcb6eeba1a628b96b1f57c06a838d3383"
 ALGORITHM = "HS256"
 EXPIRATION_TIME = timedelta(minutes=30)
 
-def get_user(telegram_id: int):
+def get_user(username: str):
     engine = create_engine("sqlite:///./tasks.db", echo=True)
     SessionLocal = sessionmaker(autoflush=False, bind=engine)
     db = SessionLocal()
-    stmnt = select(User).where(User.telegram_id == telegram_id)
+    stmnt = select(User).where(User.username == username)
     user = db.scalars(stmnt).one()
     return user
     
@@ -64,7 +64,7 @@ def get_user_me(current_user: Annotated[User, Depends(get_current_user)]):
 
 @app_router.post('/token')
 def authenticate_user(response: Response,  form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user = get_user(form_data.telegram_id) # Получите пользователя из базы данных
+    user = get_user(form_data.username) # Получите пользователя из базы данных
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
@@ -72,8 +72,8 @@ def authenticate_user(response: Response,  form_data: Annotated[OAuth2PasswordRe
 
     if not is_password_correct:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    jwt_token = create_jwt_token({"sub": user.telegram_id})
-    response.set_cookie(key = user.telegram_id, value = jwt_token)
+    jwt_token = create_jwt_token({"sub": user.username})
+    response.set_cookie(key = user.username, value = jwt_token)
     return {"access_token": jwt_token, "token_type": "bearer"}
 
 """ @app_router.post('/admin')

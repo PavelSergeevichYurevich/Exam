@@ -3,10 +3,12 @@ from typing import Optional
 
 class UserCreateSchema(BaseModel):
     telegram_id: int
+    username: str
     hashed_password: Optional[str] = None
     
 class UserChangeSchema(BaseModel):
     telegram_id: Optional[int] = None
+    username: Optional[str] = None
     password: Optional[str] = None
     
 class TaskCreateSchema(BaseModel):
