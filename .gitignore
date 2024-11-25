@@ -1,3 +1,6 @@
 /env
-/backend/tasks.db
+backend/__pycache__
+backend/tasks.db
+bot/.env
+bot/logs.log
 
