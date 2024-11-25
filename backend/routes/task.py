@@ -7,7 +7,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 from models.models import Task
 from dependencies.dependency import get_db
-from models.models import Order
+from models.models import Task
 from schemas.schemas import TaskCreateSchema, TaskUpdateSchema
 
 
