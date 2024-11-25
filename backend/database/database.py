@@ -10,7 +10,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
-engine = create_engine("sqlite:///./opros.db", echo=True)
+engine = create_engine("sqlite:///./tasks.db", echo=True)
 SessionLocal = sessionmaker(autoflush=False, bind=engine)
 session = SessionLocal()
 

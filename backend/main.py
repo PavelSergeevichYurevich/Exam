@@ -3,21 +3,18 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import uvicorn
 from database.database import engine, Base
-from models.models import User, Test, Qa
-from routes import auth, user, test, start
+from models.models import User, Task
+from routes import auth, user, task
 
-app = FastAPI(title='Opros')
-app.include_router(auth.auth_router)
-app.include_router(start.start_router)
+app = FastAPI(title='Exam')
+app.include_router(auth.app_router)
 app.include_router(user.user_router)
-app.include_router(test.test_router)
+app.include_router(task.task_router)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent.absolute() / "static"), name="static")
-Base.metadata.create_all(bind=engine)
 
-
-""" HOST = '0.0.0.0'
+HOST = '127.0.0.1'
 if __name__ == '__main__':
     Base.metadata.create_all(bind=engine)
     print('Starting server')
     uvicorn.run('main:app', port=8000, host=HOST, reload=True)
-    print('Server stopped') """
+    print('Server stopped')
