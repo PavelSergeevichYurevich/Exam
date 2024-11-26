@@ -126,14 +126,14 @@
             let description = document.querySelector("#description").value;
             let date = document.querySelector("#date").value;
             let currentUser = document.querySelector('#user').textContent
-            fetch("/recTask/", {
+            fetch("/task/add/", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     task: name,
                     describe: description,
                     ex_date: date,
-                    user_name: currentUser
+                    username: currentUser
                 })
             })
             .then(res => {

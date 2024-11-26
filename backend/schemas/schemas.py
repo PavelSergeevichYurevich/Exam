@@ -20,8 +20,7 @@ class TaskCreateSchema(BaseModel):
     task: str
     describe: str
     ex_date: str
-    status: str = 'Active'
-    user_telegram_id: int
+    username: str
     
 class TaskUpdateSchema(BaseModel):
     task: Optional[str] = None

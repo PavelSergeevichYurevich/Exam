@@ -40,24 +40,25 @@ async def get_tasks(request:Request, user_telegram_id:int, db: Session = Depends
 
 @task_router.post("/add/")
 async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depends(get_db)):
-    stmnt = select(User).where(User.telegram_id == task.user_telegram_id)
+    stmnt = select(User).where(User.username == task.username)
     user = db.execute(stmnt).one()
-    user_id = user[0].id    
+    user_id = user[0].id
+    user_telegram_id = user[0].telegram_id
+    status = 'Active'
     new_task = Task(
         task = task.task,
         describe = task.describe,
         ex_date = task.ex_date,
-        status = task.status,
-        user_telegram_id = task.user_telegram_id,
+        status = status,
+        user_telegram_id = user_telegram_id,
         user_id = user_id
     )
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
-    text = f'У вас новая задача!\nЗадача:\t{task.task}\nОписание:\t{task.describe}\nСрок:\t{task.ex_date}\nСтатус:\t{task.status}'
+    text = f'У вас новая задача!\nЗадача:\t{task.task}\nОписание:\t{task.describe}\nСрок:\t{task.ex_date}\nСтатус:\t{status}'
     await bot.send_message(task.user_telegram_id, text)
-    return new_task
-    # return RedirectResponse(url="/app/login/", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(url=f"/tasks/{task.username}", status_code=status.HTTP_302_FOUND)
 
 @task_router.delete(path='/delete/')
 async def del_task(request:Request, id:int, db: Session = Depends(get_db)):
