@@ -26,6 +26,18 @@ async def get_tasks(request:Request, user_telegram_id:int, db: Session = Depends
     tasks:list = db.scalars(stmnt).all()
     return tasks
 
+@task_router.get("/showactive/{user_telegram_id}")
+async def get_tasks(request:Request, user_telegram_id:int, db: Session = Depends(get_db)):
+    stmnt = select(Task).where(Task.user_telegram_id == user_telegram_id).where(Task.status == 'Active')
+    tasks:list = db.scalars(stmnt).all()
+    return tasks
+
+@task_router.get("/showclosed/{user_telegram_id}")
+async def get_tasks(request:Request, user_telegram_id:int, db: Session = Depends(get_db)):
+    stmnt = select(Task).where(Task.user_telegram_id == user_telegram_id).where(Task.status == 'Closed')
+    tasks:list = db.scalars(stmnt).all()
+    return tasks
+
 @task_router.post("/add/")
 async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depends(get_db)):
     new_task = Task(
