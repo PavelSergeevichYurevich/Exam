@@ -17,7 +17,7 @@ task_router = APIRouter(
 )
 templates = Jinja2Templates(directory="templates")
 
-@task_router.get("/show/")
+@task_router.get("/show/{user_telegram_id}")
 async def get_tasks(request:Request, user_telegram_id:int, db: Session = Depends(get_db)):
     stmnt = select(Task).where(Task.user_telegram_id == user_telegram_id)
     tasks:list = db.scalars(stmnt).all()

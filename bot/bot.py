@@ -49,13 +49,6 @@ keyboard = InlineKeyboardMarkup(
 async def process_start_command(message: Message):
     await message.answer(text = 'Привет!', reply_markup = keyboard)
 
-@dp.message(Command(commands='cancel'), StateFilter(default_state))
-async def process_cancel_command(message: Message):
-    await message.answer(
-        text='Отменять нечего',
-        reply_markup = keyboard
-    )
-
 @dp.message(Command(commands='cancel'), ~StateFilter(default_state))
 async def process_cancel_command_state(message: Message, state: FSMContext):
     await message.answer(
@@ -63,7 +56,16 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
         reply_markup = keyboard
     )
     await state.clear()
-    
+
+@dp.callback_query(F.data == 'button_show_pressed')
+async def process_button_show_press(callback: CallbackQuery):
+    user_telegram_id = callback.from_user.id
+    async with aiohttp.ClientSession() as session:
+        response = await session.get(f'http://127.0.0.1:8000/task/show/{user_telegram_id}')
+        text = await response.text()
+        await callback.message.answer(text=text)
+        
+
 @dp.callback_query(F.data == 'button_reg_pressed', StateFilter(default_state))
 async def process_button_reg_press(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text='Пожалуйста, введите ваше имя пользователя')
@@ -99,7 +101,7 @@ async def process_password_sent(message: Message, state: FSMContext):
 @dp.callback_query(F.data == 'button_show_data_pressed', StateFilter(default_state))
 async def process_button_reg_press(callback: CallbackQuery):
     if callback.from_user.id in user_dict:
-        await callback.answer(
+        await callback.message.answer(
             text=f'Имя: {user_dict[callback.from_user.id]["username"]}\n'
                 f'Пароль: {user_dict[callback.from_user.id]["password"]}'
         )
@@ -113,9 +115,9 @@ async def process_button_reg_press(callback: CallbackQuery):
         data = {"username": username, "password": password, "telegram_id": telegram_id}
         response = await session.post('http://127.0.0.1:8000/user/add_tlg', json=data)
         if response.status == 200:
-            await callback.answer(text=f'Вы успешно зарегистрировались в системе\n Ваш login: {username}\nPassword: {password}', parse_mode='html')
+            await callback.message.answer(text=f'Вы успешно зарегистрировались в системе\n Ваш login: {username}\nPassword: {password}', parse_mode='html')
         else:
-            await callback.answer(text=f"Что-то пошло не так.")
+            await callback.message.answer(text=f"Что-то пошло не так.")
     
 if __name__ == '__main__':
     dp.run_polling(bot)
