@@ -9,6 +9,9 @@ from models.models import Task
 from dependencies.dependency import get_db
 from models.models import Task
 from schemas.schemas import TaskCreateSchema, TaskUpdateSchema
+import sys
+sys.path.append('../')
+from bot.bot import bot
 
 
 task_router = APIRouter(
@@ -34,6 +37,8 @@ async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depend
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
+    text = '1111'
+    await bot.send_message(task.user_telegram_id, text)
     return new_task
     # return RedirectResponse(url="/app/login/", status_code=status.HTTP_302_FOUND)
 
