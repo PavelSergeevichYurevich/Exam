@@ -34,14 +34,24 @@ button_reg = InlineKeyboardButton(
     text='Register',
     callback_data='button_reg_pressed'
 )
-button_show = InlineKeyboardButton(
-    text='Show tasks',
-    callback_data='button_show_pressed'
+button_show_all = InlineKeyboardButton(
+    text='Show all tasks',
+    callback_data='button_show_all_pressed'
+)
+button_show_active = InlineKeyboardButton(
+    text='Show all active tasks',
+    callback_data='button_show_active_pressed'
+)
+button_show_closed = InlineKeyboardButton(
+    text='Show all closed tasks',
+    callback_data='button_show_closed_pressed'
 )
 keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [button_reg],
-        [button_show]
+        [button_show_all],
+        [button_show_active],
+        [button_show_closed]
     ]
 )
 
@@ -57,11 +67,27 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
     )
     await state.clear()
 
-@dp.callback_query(F.data == 'button_show_pressed')
-async def process_button_show_press(callback: CallbackQuery):
+@dp.callback_query(F.data == 'button_show_all_pressed')
+async def process_button_show_all_press(callback: CallbackQuery):
     user_telegram_id = callback.from_user.id
     async with aiohttp.ClientSession() as session:
         response = await session.get(f'http://127.0.0.1:8000/task/show/{user_telegram_id}')
+        text = await response.text()
+        await callback.message.answer(text=text)
+        
+@dp.callback_query(F.data == 'button_show_active_pressed')
+async def process_button_show_all_press(callback: CallbackQuery):
+    user_telegram_id = callback.from_user.id
+    async with aiohttp.ClientSession() as session:
+        response = await session.get(f'http://127.0.0.1:8000/task/showactive/{user_telegram_id}')
+        text = await response.text()
+        await callback.message.answer(text=text)
+        
+@dp.callback_query(F.data == 'button_show_closed_pressed')
+async def process_button_show_all_press(callback: CallbackQuery):
+    user_telegram_id = callback.from_user.id
+    async with aiohttp.ClientSession() as session:
+        response = await session.get(f'http://127.0.0.1:8000/task/showclosed/{user_telegram_id}')
         text = await response.text()
         await callback.message.answer(text=text)
         
