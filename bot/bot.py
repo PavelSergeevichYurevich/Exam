@@ -73,7 +73,7 @@ async def process_button_show_all_press(callback: CallbackQuery):
     async with aiohttp.ClientSession() as session:
         response = await session.get(f'http://127.0.0.1:8000/task/show/{user_telegram_id}')
         text = await response.text()
-        await callback.message.answer(text=text)
+        await callback.message.answer(text=text, reply_markup = keyboard)
         
 @dp.callback_query(F.data == 'button_show_active_pressed')
 async def process_button_show_all_press(callback: CallbackQuery):
@@ -81,7 +81,7 @@ async def process_button_show_all_press(callback: CallbackQuery):
     async with aiohttp.ClientSession() as session:
         response = await session.get(f'http://127.0.0.1:8000/task/showactive/{user_telegram_id}')
         text = await response.text()
-        await callback.message.answer(text=text)
+        await callback.message.answer(text=text, reply_markup = keyboard)
         
 @dp.callback_query(F.data == 'button_show_closed_pressed')
 async def process_button_show_all_press(callback: CallbackQuery):
@@ -89,7 +89,7 @@ async def process_button_show_all_press(callback: CallbackQuery):
     async with aiohttp.ClientSession() as session:
         response = await session.get(f'http://127.0.0.1:8000/task/showclosed/{user_telegram_id}')
         text = await response.text()
-        await callback.message.answer(text=text)
+        await callback.message.answer(text=text, reply_markup = keyboard)
         
 
 @dp.callback_query(F.data == 'button_reg_pressed', StateFilter(default_state))
@@ -141,7 +141,7 @@ async def process_button_reg_press(callback: CallbackQuery):
         data = {"username": username, "password": password, "telegram_id": telegram_id}
         response = await session.post('http://127.0.0.1:8000/user/add_tlg', json=data)
         if response.status == 200:
-            await callback.message.answer(text=f'Вы успешно зарегистрировались в системе\n Ваш login: {username}\nPassword: {password}', parse_mode='html')
+            await callback.message.answer(text=f'Вы успешно зарегистрировались в системе\n Ваш login: {username}\nPassword: {password}', parse_mode='html', reply_markup=keyboard)
         else:
             await callback.message.answer(text=f"Что-то пошло не так.")
     

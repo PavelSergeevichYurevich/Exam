@@ -9,10 +9,10 @@
 
 <body>
     <h1 style="text-align: center;">Tasks</h1>
-    <h2 style="text-align: center";>Список задач пользователя <p id="user">{{ context.name }}</p></h2>
+    <h2 style="text-align: center";>Список задач пользователя <p id="user">{{ context.username }}</p></h2>
   
     <table>
-        <thead><tr><th class="ID"></th><th>№</th><th>Задача</th><th>Описание</th><th>Срок</th></tr></thead>
+        <thead><tr><th class="ID"></th><th>№</th><th>Задача</th><th>Описание</th><th>Срок</th><th>Статус</th></tr></thead>
         <tbody>
             {%for task in context.tasks%}
                 <tr>
@@ -21,6 +21,7 @@
                     <th class="task">{{task.task}}</th>
                     <th class="describe">{{task.describe}}</th>
                     <th class="ex_date">{{task.ex_date}}</th>
+                    <th class="ex_date">{{task.status}}</th>
                 </tr>
             {%endfor%}
         </tbody>
