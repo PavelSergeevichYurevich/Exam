@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{ url_for('static', path='/css/styles.css') }}" rel="stylesheet">
+    <title>Tasks</title>
+</head>
+
+<body>
+    <h1 style="text-align: center;">Tasks</h1>
+    <h2 style="text-align: center";>Список задач пользователя <p id="user">{{ context.name }}</p></h2>
+  
+    <table>
+        <thead><tr><th class="ID"></th><th>№</th><th>Задача</th><th>Описание</th><th>Срок</th></tr></thead>
+        <tbody>
+            {%for task in context.tasks%}
+                <tr>
+                    <th class="ID">{{task.id}}</th>
+                    <th>{{loop.index}}</th>
+                    <th class="task">{{task.task}}</th>
+                    <th class="describe">{{task.describe}}</th>
+                    <th class="ex_date">{{task.ex_date}}</th>
+                </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+    <div class="div" style="margin: auto;">
+        <button class="button" onclick="window.location.href='/'">На главную</button>
+        <button class="button" onclick="showform()" {}>Добавить задачу</button>
+        <button class="button" onclick="change()" data-tooltip="Кликните два раза по изменяемому полю">Изменить задачу</button>
+        <button class="button" onclick="del()" data-tooltip="Кликните два раза по удаляемой задаче">Удалить задачу</button>
+    </div>
+
+    
+    <form method="POST" id="taskForm" onsubmit="add()">
+
+        <p class="textField"><span>Задача:</span></p>
+        <input type="text" id="name" required>
+
+        <p class="textField">Описание:</p>
+        <input type="text" id="description" required>
+
+        <p class="textField">Срок:</p>
+        <input type="date" id="date" required>
+
+        <input type="submit" value="Добавить задачу">
+    </form>
+
+
+    <script defer>
+        const form = document.querySelector('#taskForm');
+        form.addEventListener('submit', function(e) {e.preventDefault()});
+
+        function showform() {
+            document.querySelector('#taskForm').style.display = 'block';
+        }
+        
+        async function change() {
+            let cells = document.querySelector('tbody');
+            let classes = ['task', 'describe', 'ex_date']
+            cells.addEventListener('dblclick', function(e) {
+                if ((e.target.tagName == 'TH') && (classes.includes(e.target.className))) {
+                    let id = Number(e.target.parentElement.cells[0].textContent);
+                    let field = e.target.className;
+                    let new_value = prompt('Введите новое значение: ');
+                    let name = document.querySelector('#user').textContent;
+                    if (new_value) {
+                        e.target.textContent = new_value;
+                        fetch("/taskChange/", {
+                            method: "POST",
+                            headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                            body: JSON.stringify({ 
+                                id: id,
+                                field: field,
+                                new_value: new_value,
+                                name: name
+                            })
+                        })
+                        .then(res => {
+                            if (res.redirected) {
+                                window.location.href = res.url;
+                                return;
+                            } 
+                            else
+                                return res.text();
+                        });
+                    }
+                    else {
+                        window.location.reload(true)
+                    }
+                }
+            })
+
+        }
+
+        async function del() {
+            let cells = document.querySelector('tbody');
+            cells.addEventListener('dblclick', function(e) {
+                if (e.target.tagName == 'TH') {
+                    let id = Number(e.target.parentElement.cells[0].textContent);
+                    let name = document.querySelector('#user').textContent;
+                    fetch("/taskDel/", {
+                        method: "POST",
+                        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            id: id,
+                            name: name
+                        })
+                    })
+                    .then(res => {
+                        if (res.redirected) {
+                            window.location.href = res.url;
+                            return;
+                        } 
+                        else
+                            return res.text();
+                    });
+                }
+            })
+        }
+
+        async function add(){
+            let name = document.querySelector("#name").value;
+            let description = document.querySelector("#description").value;
+            let date = document.querySelector("#date").value;
+            let currentUser = document.querySelector('#user').textContent
+            fetch("/recTask/", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    task: name,
+                    describe: description,
+                    ex_date: date,
+                    user_name: currentUser
+                })
+            })
+            .then(res => {
+                if (res.redirected) {
+                    window.location.href = res.url;
+                    return;
+                } 
+                else
+                    return res.text();
+            });
+            
+        }
+
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import List
-from fastapi import APIRouter, Depends, Request, status
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, Request, status, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import delete, select, update
@@ -24,20 +24,20 @@ async def get_customers(request:Request, db: Session = Depends(get_db)):
     return users
 
 # создать пользователя
-@user_router.post("/add/", response_model=UserCreateSchema)
-async def add_user(request:Request, user: UserCreateSchema, password: str, db: Session = Depends(get_db)):
+@user_router.post("/add/")
+async def add_user(request:Request, username: Annotated[str, Form()], password: Annotated[str, Form()], telegram_id: Annotated[int, Form()], db: Session = Depends(get_db)):
     hashed_password = hashing_pass(password)
     new_user = User(
-        telegram_id = user.telegram_id,
-        username = user.username,
+        telegram_id = telegram_id,
+        username = username,
         hashed_password = hashed_password,
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user
+    return RedirectResponse(url="/login/", status_code=status.HTTP_302_FOUND)
 
-@user_router.post("/add_tlg/", response_model=UserCreateSchema)
+@user_router.post("/add_tlg/")
 async def add_user(request:Request, user: UserCreateTlgSchema, db: Session = Depends(get_db)):
     hashed_password = hashing_pass(user.password)
     new_user = User(
@@ -49,7 +49,6 @@ async def add_user(request:Request, user: UserCreateTlgSchema, db: Session = Dep
     db.commit()
     db.refresh(new_user)
     return new_user
-    # return RedirectResponse(url="/app/login/", status_code=status.HTTP_302_FOUND)
 
 # изменить пользователя
 @user_router.put(path='/update/')

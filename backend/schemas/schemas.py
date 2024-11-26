@@ -2,9 +2,9 @@ from pydantic import BaseModel
 from typing import Optional
 
 class UserCreateSchema(BaseModel):
-    telegram_id: int
     username: str
     hashed_password: Optional[str] = None
+    telegram_id: int
     
 class UserCreateTlgSchema(BaseModel):
     telegram_id: int

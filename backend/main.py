@@ -4,12 +4,13 @@ from pathlib import Path
 import uvicorn
 from database.database import engine, Base
 from models.models import User, Task
-from routes import auth, user, task
+from routes import auth, user, task, web
 
 app = FastAPI(title='Exam')
-app.include_router(auth.app_router)
+app.include_router(auth.auth_router)
 app.include_router(user.user_router)
 app.include_router(task.task_router)
+app.include_router(web.web_router)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent.absolute() / "static"), name="static")
 
 HOST = '127.0.0.1'
