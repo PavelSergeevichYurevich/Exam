@@ -17,6 +17,7 @@ class Task(Base):
     task: Mapped[str]
     describe: Mapped[str]
     ex_date: Mapped[str]
+    status: Mapped[str]
     user_telegram_id: Mapped[str] = mapped_column(ForeignKey('user.telegram_id'))
     user: Mapped["User"] = relationship(back_populates="tasks")
 

@@ -32,12 +32,13 @@ async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depend
         task = task.task,
         describe = task.describe,
         ex_date = task.ex_date,
+        status = task.status,
         user_telegram_id = task.user_telegram_id
     )
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
-    text = f'У вас новая задача!\nЗадача:\t{task.task}\nОписание:\t{task.describe}\nСрок:\t{task.ex_date}'
+    text = f'У вас новая задача!\nЗадача:\t{task.task}\nОписание:\t{task.describe}\nСрок:\t{task.ex_date}\nСтатус:\t{task.status}'
     await bot.send_message(task.user_telegram_id, text)
     return new_task
     # return RedirectResponse(url="/app/login/", status_code=status.HTTP_302_FOUND)
@@ -72,6 +73,13 @@ async def update_task(request:Request, task_id: int, updating_task: TaskUpdateSc
         updated_task = db.execute(stmnt)
         db.commit()
         
+    if updating_task.status:
+        stmnt = update(Task).where(Task.id == task_id).values(
+            status = updating_task.status
+        )
+        updated_task = db.execute(stmnt)
+        db.commit()
+        
     if updating_task.user_telegram_id:
         stmnt = update(Task).where(Task.id == task_id).values(
             user_telegram_id = updating_task.user_telegram_id
@@ -79,6 +87,8 @@ async def update_task(request:Request, task_id: int, updating_task: TaskUpdateSc
         updated_task = db.execute(stmnt)
         db.commit()
         
+    text = f'У вас изменения в задаче!\nЗадача:\t{updating_task.task}\nОписание:\t{updating_task.describe}\nСрок:\t{updating_task.ex_date}\nСтатус:\t{updating_task.status}'
+    await bot.send_message(updating_task.user_telegram_id, text)
     return updated_task
 
 
