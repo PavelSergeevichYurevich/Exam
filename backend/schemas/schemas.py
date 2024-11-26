@@ -28,7 +28,7 @@ class TaskUpdateSchema(BaseModel):
     describe: Optional[str] = None
     ex_date: Optional[str] = None
     status: Optional[str] = 'Active'
-    user_telegram_id: Optional[int] = None
+    user_id: Optional[int] = None
 
 class TaskDeleteSchema(BaseModel):
     id: int

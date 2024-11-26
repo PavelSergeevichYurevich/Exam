@@ -96,15 +96,31 @@ async def update_task(request:Request, task_id: int, updating_task: TaskUpdateSc
         updated_task = db.execute(stmnt)
         db.commit()
         
-    if updating_task.user_telegram_id:
+    if updating_task.user_id:
+        stmnt = select(User).where(User.id == updating_task.user_id)
+        user = db.execute(stmnt).one()
+        user_id = user[0].id 
+        user_telegram_id = user[0].telegram_id
+        
         stmnt = update(Task).where(Task.id == task_id).values(
-            user_telegram_id = updating_task.user_telegram_id
+            user_telegram_id = user_telegram_id
+        )
+        updated_task = db.execute(stmnt)
+        
+        stmnt = update(Task).where(Task.id == task_id).values(
+            user_id = user_id
         )
         updated_task = db.execute(stmnt)
         db.commit()
-        
-    text = f'У вас изменения в задаче!\nЗадача:\t{updating_task.task}\nОписание:\t{updating_task.describe}\nСрок:\t{updating_task.ex_date}\nСтатус:\t{updating_task.status}'
-    await bot.send_message(updating_task.user_telegram_id, text)
+        text = f'У вас изменения в задаче!\nЗадача:\t{updating_task.task}\nОписание:\t{updating_task.describe}\nСрок:\t{updating_task.ex_date}\nСтатус:\t{updating_task.status}'
+        await bot.send_message(user_telegram_id, text)
+    else:
+        stmnt = select(Task).where(Task.id == task_id)
+        current_task = db.execute(stmnt).one()
+        user_telegram_id = current_task[0].user_telegram_id
+        print(user_telegram_id)
+        text = f'У вас изменения в задаче!\nЗадача:\t{updating_task.task}\nОписание:\t{updating_task.describe}\nСрок:\t{updating_task.ex_date}\nСтатус:\t{updating_task.status}'
+        await bot.send_message(user_telegram_id, text)
     return updated_task
 
 
