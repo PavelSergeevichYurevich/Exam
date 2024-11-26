@@ -7,7 +7,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 from models.models import Task
 from dependencies.dependency import get_db
-from models.models import Task
+from models.models import Task, User
 from schemas.schemas import TaskCreateSchema, TaskUpdateSchema
 import sys
 sys.path.append('../')
@@ -40,12 +40,16 @@ async def get_tasks(request:Request, user_telegram_id:int, db: Session = Depends
 
 @task_router.post("/add/")
 async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depends(get_db)):
+    stmnt = select(User).where(User.telegram_id == task.user_telegram_id)
+    user = db.execute(stmnt).one()
+    user_id = user[0].id    
     new_task = Task(
         task = task.task,
         describe = task.describe,
         ex_date = task.ex_date,
         status = task.status,
-        user_telegram_id = task.user_telegram_id
+        user_telegram_id = task.user_telegram_id,
+        user_id = user_id
     )
     db.add(new_task)
     db.commit()
