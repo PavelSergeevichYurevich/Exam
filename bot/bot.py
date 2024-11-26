@@ -1,6 +1,7 @@
 import os
 import dotenv
 import logging
+import aiohttp
 
 logging.basicConfig(level=logging.DEBUG, format='[{asctime}] #{levelname:8} {filename}:'
            '{lineno} - {name} - {message}',
@@ -83,9 +84,14 @@ async def process_password_sent(message: Message, state: FSMContext):
         text='Посмотреть данные',
         callback_data='button_show_data_pressed'
     )
+    button_sent_data = InlineKeyboardButton(
+        text='Зарегистрироваться',
+        callback_data='button_sent_data_pressed'
+    )
     keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [button_show_data],
+        [button_sent_data]
     ]
 )
     await message.answer(text='Спасибо! Ваши данные сохранены!', reply_markup=keyboard)
@@ -97,6 +103,19 @@ async def process_button_reg_press(callback: CallbackQuery):
             text=f'Имя: {user_dict[callback.from_user.id]["username"]}\n'
                 f'Пароль: {user_dict[callback.from_user.id]["password"]}'
         )
+
+@dp.callback_query(F.data == 'button_sent_data_pressed', StateFilter(default_state))
+async def process_button_reg_press(callback: CallbackQuery):
+    telegram_id = callback.from_user.id
+    username = user_dict[callback.from_user.id]["username"]
+    password = user_dict[callback.from_user.id]["password"]
+    async with aiohttp.ClientSession() as session:
+        data = {"username": username, "password": password, "telegram_id": telegram_id}
+        response = await session.post('http://127.0.0.1:8000/user/add_tlg', json=data)
+        if response.status == 200:
+            await callback.answer(text=f'Вы успешно зарегистрировались в системе\n Ваш login: {username}\nPassword: {password}', parse_mode='html')
+        else:
+            await callback.answer(text=f"Что-то пошло не так.")
     
 if __name__ == '__main__':
     dp.run_polling(bot)

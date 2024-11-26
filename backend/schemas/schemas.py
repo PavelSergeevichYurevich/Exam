@@ -6,6 +6,11 @@ class UserCreateSchema(BaseModel):
     username: str
     hashed_password: Optional[str] = None
     
+class UserCreateTlgSchema(BaseModel):
+    telegram_id: int
+    username: str
+    password: str
+    
 class UserChangeSchema(BaseModel):
     telegram_id: Optional[int] = None
     username: Optional[str] = None

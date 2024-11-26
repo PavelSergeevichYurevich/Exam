@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from routes.auth import hashing_pass
 from dependencies.dependency import get_db
 from models.models import User
-from schemas.schemas import UserChangeSchema, UserCreateSchema
+from schemas.schemas import UserChangeSchema, UserCreateSchema, UserCreateTlgSchema
 
 user_router = APIRouter(
     prefix='/user',
@@ -27,6 +27,19 @@ async def get_customers(request:Request, db: Session = Depends(get_db)):
 @user_router.post("/add/", response_model=UserCreateSchema)
 async def add_user(request:Request, user: UserCreateSchema, password: str, db: Session = Depends(get_db)):
     hashed_password = hashing_pass(password)
+    new_user = User(
+        telegram_id = user.telegram_id,
+        username = user.username,
+        hashed_password = hashed_password,
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+@user_router.post("/add_tlg/", response_model=UserCreateSchema)
+async def add_user(request:Request, user: UserCreateTlgSchema, db: Session = Depends(get_db)):
+    hashed_password = hashing_pass(user.password)
     new_user = User(
         telegram_id = user.telegram_id,
         username = user.username,
