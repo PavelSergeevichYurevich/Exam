@@ -94,13 +94,13 @@ async def process_button_show_all_press(callback: CallbackQuery):
 
 @dp.callback_query(F.data == 'button_reg_pressed', StateFilter(default_state))
 async def process_button_reg_press(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text='Пожалуйста, введите ваше имя пользователя')
+    await callback.message.answer(text='Пожалуйста, введите ваше имя пользователя или /cancel для отмены')
     await state.set_state(FSMFillForm.fill_username)
 
 @dp.message(StateFilter(FSMFillForm.fill_username))
 async def process_username_sent(message: Message, state: FSMContext):
     await state.update_data(username=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите ваш пароль')
+    await message.answer(text='Спасибо!\n\nА теперь введите ваш пароль или /cancel для отмены')
     await state.set_state(FSMFillForm.fill_password)
 
 @dp.message(StateFilter(FSMFillForm.fill_password))
