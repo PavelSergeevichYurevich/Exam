@@ -11,7 +11,7 @@
         <h2>Login</h2>
         <form id="checkForm">
             <p class="textField" id="emailText"><span>Username:</span></p>
-            <input type="text" id="username" name="username" required>
+            <input type="text" id="username" name="username" required oninput="check()">
             <p class="textField" id="passwordText">Password:</p>
             <input type="password" id="password" name="password" required>
             <input type="submit">
@@ -22,6 +22,28 @@
         <button onclick="window.location.href='/register/'">Регистрация</button>
     </div>
     <script>
+        let cook = document.cookie;
+        let str = cook.split('; ');
+        let cookieObject = {};
+        let curr;
+        for (let i = 0; i < str.length; ++i) {
+            curr = str[i].split('=');
+            cookieObject[curr[0]] = curr[1];
+        }
+        async function check() {
+            let username = document.querySelector("#username").value
+            if (username in cookieObject) {
+                token = cookieObject[username]
+                url = '/auth/users/me/'
+                let response = await fetch(url, {
+                    headers: {Authorization: `Bearer ${token}`}
+                  });
+                if (response.status == 200) {
+                    url_redirect = '/tasks/'+username
+                    window.location.href=url_redirect
+                }
+            }
+        }
         checkForm.onsubmit = async (e) => {
             e.preventDefault();
             let username = document.querySelector("#username").value
