@@ -37,7 +37,7 @@ async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depend
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
-    text = '1111'
+    text = f'У вас новая задача!\nЗадача:\t{task.task}\nОписание:\t{task.describe}\nСрок:\t{task.ex_date}'
     await bot.send_message(task.user_telegram_id, text)
     return new_task
     # return RedirectResponse(url="/app/login/", status_code=status.HTTP_302_FOUND)
