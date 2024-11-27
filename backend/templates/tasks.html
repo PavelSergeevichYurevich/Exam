@@ -21,7 +21,8 @@
                     <th class="task">{{task.task}}</th>
                     <th class="describe">{{task.describe}}</th>
                     <th class="ex_date">{{task.ex_date}}</th>
-                    <th class="ex_date">{{task.status}}</th>
+                    <th class="status">{{task.status}}</th>
+                    <th class="ex_date"><button id={{task.id}} style='width: 70%; margin: auto;'>Удалить</th>
                 </tr>
             {%endfor%}
         </tbody>
@@ -30,7 +31,6 @@
         <button class="button" onclick="window.location.href='/'">На главную</button>
         <button class="button" onclick="showform()" {}>Добавить задачу</button>
         <button class="button" onclick="change()" data-tooltip="Кликните два раза по изменяемому полю">Изменить задачу</button>
-        <button class="button" onclick="del()" data-tooltip="Кликните два раза по удаляемой задаче">Удалить задачу</button>
     </div>
 
     
@@ -59,23 +59,24 @@
         
         async function change() {
             let cells = document.querySelector('tbody');
-            let classes = ['task', 'describe', 'ex_date']
+            let classes = ['task', 'describe', 'ex_date', 'status']
             cells.addEventListener('dblclick', function(e) {
                 if ((e.target.tagName == 'TH') && (classes.includes(e.target.className))) {
                     let id = Number(e.target.parentElement.cells[0].textContent);
                     let field = e.target.className;
                     let new_value = prompt('Введите новое значение: ');
                     let name = document.querySelector('#user').textContent;
+                    console.log(id, field, new_value, name)
                     if (new_value) {
                         e.target.textContent = new_value;
-                        fetch("/taskChange/", {
-                            method: "POST",
+                        fetch("/task/update/", {
+                            method: "PUT",
                             headers: { "Accept": "application/json", "Content-Type": "application/json" },
                             body: JSON.stringify({ 
                                 id: id,
                                 field: field,
                                 new_value: new_value,
-                                name: name
+                                username: name
                             })
                         })
                         .then(res => {

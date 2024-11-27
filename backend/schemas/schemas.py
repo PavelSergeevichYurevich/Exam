@@ -23,11 +23,10 @@ class TaskCreateSchema(BaseModel):
     username: str
     
 class TaskUpdateSchema(BaseModel):
-    task: Optional[str] = None
-    describe: Optional[str] = None
-    ex_date: Optional[str] = None
-    status: Optional[str] = 'Active'
-    user_id: Optional[int] = None
+    id: int
+    field: str
+    new_value: str
+    username: str
 
 class TaskDeleteSchema(BaseModel):
     id: int
