@@ -22,7 +22,7 @@
                     <th class="describe">{{task.describe}}</th>
                     <th class="ex_date">{{task.ex_date}}</th>
                     <th class="status">{{task.status}}</th>
-                    <th class="ex_date"><button id={{task.id}} style='width: 70%; margin: auto;'>Удалить</th>
+                    <th class="button_del"><button id={{task.id}} style='width: 70%; margin: auto;'>Удалить</th>
                 </tr>
             {%endfor%}
         </tbody>
@@ -31,7 +31,6 @@
         <button class="button" onclick="window.location.href='/'">На главную</button>
         <button class="button" onclick="showform()" {}>Добавить задачу</button>
         <button class="button" onclick="change()" data-tooltip="Кликните два раза по изменяемому полю">Изменить задачу</button>
-        <button class="button" onclick="del()" data-tooltip="Кликните два раза по удаляемой задаче">Удалить задачу</button>
     </div>
 
     
@@ -56,6 +55,30 @@
 
         function showform() {
             document.querySelector('#taskForm').style.display = 'block';
+        }
+
+        const delButtons = document.querySelectorAll('.button_del')
+        for (const delButton of delButtons) {
+            delButton.addEventListener('click', function(e) {
+                let id = e.target.id
+                let username = document.querySelector('#user').textContent;
+                fetch("/task/delete/", {
+                    method: "DELETE",
+                    headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        id: id,
+                        username: username
+                    })
+                })
+                .then(res => {
+                    if (res.redirected) {
+                        window.location.href = res.url;
+                        return;
+                    } 
+                    else
+                        return res.text();
+                });
+            })
         }
         
         async function change() {
@@ -95,32 +118,6 @@
                 }
             })
 
-        }
-
-        async function del() {
-            let cells = document.querySelector('tbody');
-            cells.addEventListener('dblclick', function(e) {
-                if (e.target.tagName == 'TH') {
-                    let id = Number(e.target.parentElement.cells[0].textContent);
-                    let name = document.querySelector('#user').textContent;
-                    fetch("/task/delete/", {
-                        method: "DELETE",
-                        headers: { "Accept": "application/json", "Content-Type": "application/json" },
-                        body: JSON.stringify({ 
-                            id: id,
-                            username: name
-                        })
-                    })
-                    .then(res => {
-                        if (res.redirected) {
-                            window.location.href = res.url;
-                            return;
-                        } 
-                        else
-                            return res.text();
-                    });
-                }
-            })
         }
 
         async function add(){
