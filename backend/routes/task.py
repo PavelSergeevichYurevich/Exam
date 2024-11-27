@@ -66,7 +66,13 @@ async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depend
 @task_router.delete('/delete/')
 async def del_task(request:Request, task: TaskDeleteSchema, db: Session = Depends(get_db)):
     username = task.username
-    print(username)
+    stmnt = select(User).where(User.username == username)
+    user = db.execute(stmnt).one()
+    user_telegram_id = user[0].telegram_id
+    stmnt = select(Task).where(Task.id == task.id)
+    task = db.execute(stmnt).one()[0]
+    text = f'Удалена задача.\nЗадача:\t{task.task}\nОписание:\t{task.describe}\nСрок:\t{task.ex_date}'
+    await bot.send_message(user_telegram_id, text)
     stmnt = delete(Task).where(Task.id == task.id)
     task = db.execute(stmnt)
     db.commit()
