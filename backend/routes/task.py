@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request
+from starlette import status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import delete, select, update
@@ -8,7 +9,7 @@ from sqlalchemy.orm import Session
 from models.models import Task
 from dependencies.dependency import get_db
 from models.models import Task, User
-from schemas.schemas import TaskCreateSchema, TaskUpdateSchema
+from schemas.schemas import TaskCreateSchema, TaskUpdateSchema, TaskDeleteSchema
 import sys
 sys.path.append('../')
 from bot.bot import bot
@@ -40,7 +41,8 @@ async def get_tasks(request:Request, user_telegram_id:int, db: Session = Depends
 
 @task_router.post("/add/")
 async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depends(get_db)):
-    stmnt = select(User).where(User.username == task.username)
+    username = task.username
+    stmnt = select(User).where(User.username == username)
     user = db.execute(stmnt).one()
     user_id = user[0].id
     user_telegram_id = user[0].telegram_id
@@ -57,15 +59,19 @@ async def add_task(request:Request, task: TaskCreateSchema, db: Session = Depend
     db.commit()
     db.refresh(new_task)
     text = f'У вас новая задача!\nЗадача:\t{task.task}\nОписание:\t{task.describe}\nСрок:\t{task.ex_date}\nСтатус:\t{status}'
-    await bot.send_message(task.user_telegram_id, text)
-    return RedirectResponse(url=f"/tasks/{task.username}", status_code=status.HTTP_302_FOUND)
+    await bot.send_message(user_telegram_id, text)
+    return RedirectResponse(url=f"/tasks/{username}")
 
-@task_router.delete(path='/delete/')
-async def del_task(request:Request, id:int, db: Session = Depends(get_db)):
-    stmnt = delete(Task).where(Task.id == id)
+
+@task_router.delete('/delete/')
+async def del_task(request:Request, task: TaskDeleteSchema, db: Session = Depends(get_db)):
+    username = task.username
+    print(username)
+    stmnt = delete(Task).where(Task.id == task.id)
     task = db.execute(stmnt)
     db.commit()
-    return task
+    return RedirectResponse(url=f"/tasks/{username}", status_code=status.HTTP_302_FOUND)
+
 
 @task_router.put(path='/update/')
 async def update_task(request:Request, task_id: int, updating_task: TaskUpdateSchema, db: Session = Depends(get_db)):

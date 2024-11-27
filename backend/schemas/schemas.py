@@ -31,4 +31,4 @@ class TaskUpdateSchema(BaseModel):
 
 class TaskDeleteSchema(BaseModel):
     id: int
-    user_telegram_id: int
+    username: str

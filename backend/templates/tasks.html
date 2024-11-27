@@ -101,12 +101,12 @@
                 if (e.target.tagName == 'TH') {
                     let id = Number(e.target.parentElement.cells[0].textContent);
                     let name = document.querySelector('#user').textContent;
-                    fetch("/taskDel/", {
-                        method: "POST",
+                    fetch("/task/delete/", {
+                        method: "DELETE",
                         headers: { "Accept": "application/json", "Content-Type": "application/json" },
                         body: JSON.stringify({ 
                             id: id,
-                            name: name
+                            username: name
                         })
                     })
                     .then(res => {
