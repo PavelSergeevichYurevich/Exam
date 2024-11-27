@@ -92,3 +92,10 @@
         top: 3em;
     }
     
+    img {
+        display: block;
+        margin: auto;
+        margin-top: 200px;
+        width: 15 0px;
+        height: auto;
+    }
